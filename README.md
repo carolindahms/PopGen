@@ -1,4 +1,4 @@
-#Stats from SFS
+# Stats from SFS
 Scripts to calculate pi, dxy, Tajima's D from site frequency spectra.
 
 a) pi (genetic diversity) in the 'pi_tajima_n.R script (it also gives you Tajima's D, the number of segregating sites S, ThetaW (Whatterson's Theta)
