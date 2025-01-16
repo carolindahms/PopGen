@@ -13,6 +13,7 @@ where n is the number of individuals in pop1, m the number of individuals in pop
 
 ## Compute all stats with one script + get marginalized 1D SFS
 computes pi, theta, Tajima's D, dxy, da for both populations, and their Fst, marginalizes into 1D SFS from moments formatted 2D SFS (unfolded or folded without mask).
+Expects sfs with header line in format: 2n+1 2m+1 folded/unfolded
 
 Command:
-`python allStats_moments_1Dsfs.py pop${pop1}_${pop2}.sfs ${pop1} ${pop2} pop1size pop2size`
+`python allStats_moments_1Dsfs.py pop${pop1}_${pop2}.sfs ${pop1} ${pop2} n m`
