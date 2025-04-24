@@ -13,9 +13,9 @@ where n is the number of individuals in pop1, m the number of individuals in pop
 
 ## Compute all stats with one script + get marginalized 1D SFS
 Computes:
-*pi, theta, Tajima's D
-*dxy, da for both populations and their Fst
-*marginalized 1D SFS 
+* pi, theta, Tajima's D
+* dxy, da for both populations and their Fst
+* marginalized 1D SFS 
 
 Input: moments formatted 2D SFS (unfolded or folded without mask).
 Expects sfs with header line in format: 2n+1 2m+1 folded/unfolded
