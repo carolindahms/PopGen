@@ -12,7 +12,12 @@ Example on command line:
 where n is the number of individuals in pop1, m the number of individuals in pop2. SFS file in format pop1-pop2.sfs
 
 ## Compute all stats with one script + get marginalized 1D SFS
-computes pi, theta, Tajima's D, dxy, da for both populations, and their Fst, marginalizes into 1D SFS from moments formatted 2D SFS (unfolded or folded without mask).
+Computes:
+*pi, theta, Tajima's D
+*dxy, da for both populations and their Fst
+*marginalized 1D SFS 
+
+Input: moments formatted 2D SFS (unfolded or folded without mask).
 Expects sfs with header line in format: 2n+1 2m+1 folded/unfolded
 
 Command:
