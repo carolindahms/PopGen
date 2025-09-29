@@ -9,6 +9,12 @@ import numpy as np
 import pandas as pd
 from moments import Spectrum
 
+#Computes pi, theta, TD, dxy, da, Fst, marginalised 1D site frequency spectra.
+#Input: moments formatted 2D SFS (unfolded or folded without mask). Expects sfs with header line in format: 2n+1 2m+1 folded/unfolded
+
+#Execute: python allStats_moments_1Dsfs.py pop1_pop2.sfs pop1 pop2 n m
+#n = number of individuals in pop1, m = number of individuals in pop2
+
 # Function to process SFS data
 def process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2):
     data = Spectrum.from_file(infile, mask_corners=False)
