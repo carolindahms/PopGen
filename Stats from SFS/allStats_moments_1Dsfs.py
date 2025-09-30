@@ -14,15 +14,19 @@ Carolin Dahms, Sept 2025
 
 Description:
  Computes pi, theta, TD, dxy, da, Fst, marginalised 1D site frequency spectra.
-Input: moments formatted 2D SFS (unfolded or folded without mask). Expects sfs with header line in format: 2n+1 2m+1 folded/unfolded
+Input: moments formatted 2D SFS (unfolded or folded without mask). Expects sfs with header line in format: 2n+1 2m+1 unfolded 
+(note: always 'unfolded' irrespective of polarization to make this script work)
 
-Execute: python allStats_moments_1Dsfs.py pop1_pop2.sfs pop1 pop2 n m
+Execute: python allStats_moments_1Dsfs.py pop1_pop2.sfs pop1 pop2 n m [fold]
 n = number of individuals in pop1, m = number of individuals in pop2
+The 'fold' arg is optional if you want the marginalised sfs to be folded.
 """
 
-# Function to process SFS data
-def process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2):
+def process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2, fold=False):
     data = Spectrum.from_file(infile, mask_corners=False)
+
+    if fold:
+        data = data.fold()
 
     ns = data.sample_sizes
     seg = np.around(data.S(), 2)
@@ -43,7 +47,6 @@ def process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2):
     pi2 = (np.around(sfs2.pi(), 2))/sfs_sum
     theta2 = np.around(sfs2.Watterson_theta(), 2)
     TD2 = np.around(sfs2.Tajima_D(), 4)
-    
     da = dxy - (pi1 + pi2) / 2
 
     # Create a list of SFS1 values
@@ -75,13 +78,9 @@ def process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2):
 def compute_dxy(infile, pop1, pop2, n1, n2):
 
     # Read the 2D SFS data from the input file
-    dat = pd.read_csv(infile, sep="\t", header=None)
-    #data = Spectrum.from_file(infile, mask_corners=False)
-    
-    # Flatten the DataFrame to ensure proper shape
+    dat = pd.read_csv(infile, sep="\t", header=None)    
     dat = dat.values.flatten()
 
-    # Adjust the sample sizes to match the format of the script you provided
     n = n1 * 2 + 1
     m = n2 * 2 + 1
 
@@ -110,9 +109,7 @@ def compute_dxy(infile, pop1, pop2, n1, n2):
     ''' 
     #Compute da
 def compute_da(dxy, pi1, p2):
-    
     da = dxy - (pi1+pi2)/2
-    
     return da
     
 '''
@@ -124,8 +121,7 @@ if __name__ == "__main__":
     pop2 = sys.argv[3]
     n1 = int(sys.argv[4])
     n2 = int(sys.argv[5])
-
-   
+    fold = len(sys.argv) > 6 and sys.argv[6].lower() == 'fold'
     output_file = f"Sumstats_{pop1}_{pop2}_1D.txt"
 
     # Write the header to the output file
@@ -136,49 +132,23 @@ if __name__ == "__main__":
         for i in range(1, n2 * 2 + 2):
             out_file.write(f"\tsfs2_{i}")
         out_file.write(f"\n")
-        
-    # Read all lines from the input file
+
     with open(infile, 'r') as f:
         lines = f.readlines()
         
-    if len(lines) % 2 != 0:
-        print(f"Error: The input file '{infile}' has an odd number of lines. Please check the file format.")
-        sys.exit(1)
+    # Ensure there are at least two lines to process
+    if len(lines) < 2:
+        print("Error: The input file must have at least two lines.")
+        sys.exit(1) 
+  
+    temp_dxy_file = "temp_dxy.txt"
+    with open(temp_dxy_file, 'w') as f:
+        f.write(lines[1])
+    
+    dxy = compute_dxy(temp_dxy_file, pop1, pop2, n1, n2)
+    pi1 = 0
+    pi2 = 0
+    pi1, pi2 = process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2, fold)
         
-    # Loop through lines, processing every two lines as one SFS
-    for i in range(0, len(lines), 2):
-        #print(f"Processing lines {i} and {i+1}")
-        
-        # Create temporary SFS files for compute_dxy and process_sfs
-        temp_dxy_file = "temp_dxy.txt"
-        temp_sfs_file = "temp_sfs.txt"
-        
-        with open(temp_sfs_file, 'w') as temp_sfs:
-            temp_sfs.write(lines[i])  # Write the header
-            temp_sfs.write(lines[i + 1])  # Write the SFS data
-        
-        # Write the SFS data to the temporary files
-        with open(temp_dxy_file, 'w') as temp_dxy:
-            temp_dxy.write(lines[i + 1])
-          
-
-        # Compute dxy for the current SFS
-        # dxy = compute_dxy(temp_dxy_file, pop1, pop2)
-        dxy = compute_dxy(temp_dxy_file, pop1, pop2, n1, n2)
-        
-        # Process the temporary SFS file for other statistics
-        pi1 = 0
-        pi2 = 0
-
-        pi1, pi2 = process_sfs(temp_sfs_file, pop1, pop2, output_file, dxy, pi1, pi2)
-        
-        #da = compute_da(dxy, pi1, pi2)
-        #print("absolute divergence =", da, pi1, pi2)
-        
-
-       
-
-    # Optionally, remove the temporary files after processing
+    #print("absolute divergence =", da, pi1, pi2)
     os.remove(temp_dxy_file)
-    os.remove(temp_sfs_file)
-
