@@ -71,10 +71,10 @@ def process_sfs(infile, pop1, pop2, output_file, dxy, pi1, pi2, fold=False):
     with open(output_file, 'a') as out_file:
         out_file.write(output_line + "\n")
     
-    print(sfs1)
-    print(sfs2)    
-    print(sfs_sum)
-    print (ns)
+    #print(sfs1)
+    #print(sfs2)    
+    #print(sfs_sum)
+    #print (ns)
     return pi1, pi2
 
 # Function to compute dxy
